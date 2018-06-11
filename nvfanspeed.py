@@ -27,47 +27,11 @@ along with this program.  If not, see http://www.gnu.org/licenses.
 from subprocess import *
 import time
 import os
-import sys
 import signal
 import threading
 
+current_temp = 0
 new_fan_speed = 0
-"""
-example_curve_point_array = [[10, 30],
-							 [20, 35],
-							 [40, 45],
-							 [50, 55],
-							 [60, 60],
-							 [66, 70],
-							 [70, 90],
-							 [100, 100]]
-
---------------------
-
-custom fan speed curve example:
-[[temp, speed],
- [temp, speed],
- [temp, speed]]
-always start at low temp/speed and head towards high temp/speed
-ensure that first point is always lower temp than possible
-ensure that gradient is always positive and less than infinity
-
---------------------
-
-current temperature = 12
-
-curve point = [temp, speed]
-curve point 1 = [10, 5]
-curve point 2 = [20, 10]
-
-curve point 1 temperature (10) <= current temperature (12) < curve point 2 temperature (20)
-
-gradient = (10 - 5)/(20 - 10) = 0.5 #from point 1 to point 2, fan speed must be increased by 0.5 for every unitary increase of the temperature
-
-difference current temperature-previously point temperature = 12 - 10 = 2
-
-new speed = 5 + 2*0.5 = 6
-"""
 
 class Curve():
 
@@ -151,6 +115,7 @@ class NvidiaFanController(StoppableThread):
 
 	def run(self):
 		global new_fan_speed
+		global current_temp
 
 		while(not self.stopped()):
 			self.curve_lock.acquire()
@@ -221,21 +186,5 @@ class NvidiaFanController(StoppableThread):
 
 
 if __name__ == "__main__":
-	print "Please launch nvidia-gui.py"
-	"""
-	curve_point_array = [[10, 30],[20, 35],[40, 45],[50, 55],[60, 60],[66, 70],[70, 99],[100, 100]]
+	print "Please launch nvda-contrl.py"
 
-	x_temp = list()
-	for index in range(0, len(curve_point_array)):
-		x_temp.append(curve_point_array[index][0])
-
-	y_speed = list()
-	for index in range(0, len(curve_point_array)):
-		y_speed.append(curve_point_array[index][1])
-
-	#nvidiaController = NvidiaFanController(curve_point_array)
-	nvidiaController = NvidiaFanController(x_temp, y_speed)
-	nvidiaController.start()
-
-	signal.pause() #don't let the main thread terminate before the nvidia thread (otherwise the latter won't receive any signal)
-	"""
