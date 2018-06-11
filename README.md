@@ -1,5 +1,4 @@
 # nvda-contrl
-==========================
 
 Python script for dynamic fan speed control for Nvidia Cards
 
