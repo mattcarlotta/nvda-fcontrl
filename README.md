@@ -1,19 +1,17 @@
 # nvda-fcontrl
-python script for that creates modifiable 2D curve of [temp, speed] points that are used to control the fan speed within a Linux envirnoment.
+python script for that creates a modifiable 2D curve of [temp, speed] points that are used to control the fan speed within a Linux envirnoment.
 
 ## Quickstart Linux
 
-* Install python  
+* Install python:  
   `sudo apt-get install python`
-* Install matplotlib  
+* Install matplotlib:  
   `sudo apt-get install python-matplotlib`
-* Install Tkinter
+* Install Tkinter:  
   `sudo apt-get install python-tk`
-* Add the following line in section "Device" of /etc/X11/xorg.conf  
-  `Option "Coolbits" "28"`
-  or
+* Allow the Nvidia card's fan to be controlled:  
   `sudo nvidia-xconfig --enable-all-gpus && nvidia-xconfig --cool-bits=28`
-* Open a terminal in the folder containing both nvda-contrl.py and nvfanspeed.py, then execute:  
+* Open a terminal in the folder containing nvda-fcontrl.py, then execute:  
   `python nvd-fcontrl.py`
 
 ## Notes
@@ -22,7 +20,7 @@ python script for that creates modifiable 2D curve of [temp, speed] points that 
 ⚠️ It currently must be used with an open terminal  
 ⚠️ On 349.12 and 349.16 versions there is a regression that makes it impossibile to control fan speed
 
-Depencies:  
+Dependcies:  
 * python  
 * matplotlib  
 * Tkinter
