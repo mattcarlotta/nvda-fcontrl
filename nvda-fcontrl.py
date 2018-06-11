@@ -55,7 +55,6 @@ class Chart(object):
 		global current_temp
 		global current_fan_speed
 
-		self.DEBUG = False
 		self.plot = plt
 		self.fig = fig #create a figure (one figure per window)
 		self.axes = axes #add a subplot to the figure. axes is of type Axes which contains most of the figure elements
@@ -72,7 +71,7 @@ class Chart(object):
 		self.axes.set_xlim(self.x_min, self.x_max)
 		self.axes.set_ylim(self.y_min, self.y_max)
 
-		saveFig = self.fig.add_axes([0.8, 0.025, 0.1, 0.04])
+		saveFig = self.fig.add_axes([0.8, 0.02, 0.1, 0.04])
 		self.saveFig = Button(saveFig, "Save")
 		self.saveFig.on_clicked(self.saveToFile)
 
@@ -80,7 +79,7 @@ class Chart(object):
 		# self.printButton = Button(printAxes, "Print")
 		# self.printButton.on_clicked(self.printData)
 
-		applyAxes = self.fig.add_axes([0.685, 0.025, 0.1, 0.04])
+		applyAxes = self.fig.add_axes([0.685, 0.02, 0.1, 0.04])
 		self.applyAxes = Button(applyAxes, "Apply")
 		self.applyAxes.on_clicked(self.applyData)
 
@@ -91,9 +90,8 @@ class Chart(object):
 		self.dataController = DataController(x_values, y_values)
 
 		#validate points from file!
-		if not self.DEBUG:
-			self.nvidiaController = nvfanspeed.NvidiaFanController(x_values, y_values)
-			self.nvidiaController.start()
+		self.nvidiaController = nvfanspeed.NvidiaFanController(x_values, y_values)
+		self.nvidiaController.start()
 
 		signal.signal(signal.SIGINT, self.exit_signal_handler) #CTRL-C
 		signal.signal(signal.SIGQUIT, self.exit_signal_handler) #CTRL-\
@@ -104,27 +102,25 @@ class Chart(object):
 		# self.updateLabelStats(axes)
 
 	def on_close(self, event):
-		if not self.DEBUG:
-			self.nvidiaController.stop()
+		self.nvidiaController.stop()
 
 	def exit_signal_handler(self, signal, frame):
 		self.close()
 
 	def close(self):
 		self.plot.close('all')
-		if not self.DEBUG:
-			self.nvidiaController.stop()
+		self.nvidiaController.stop()
 
 	def show(self):
 		self.plot.show() #display ALL non closed figures
 		#pyplot is stateful: usually self.plot.function() works on the current plot in the current figure
 
-	def printData(self, event):
-		xdata, ydata = self.dataController.getData()
-		print "---------------"
-		for index in range(0, len(xdata)):
-			print xdata[index], ydata[index]
-		print "---------------"
+	# def printData(self, event):
+	# 	xdata, ydata = self.dataController.getData()
+	# 	print "---------------"
+	# 	for index in range(0, len(xdata)):
+	# 		print xdata[index], ydata[index]
+	# 	print "---------------"
 
 	def applyData(self, event):
 		xdata = self.line.get_xdata()
@@ -132,8 +128,8 @@ class Chart(object):
 		ret = self.dataController.setData(xdata, ydata)
 
 		if ret:
-			if not self.DEBUG:
-				self.nvidiaController.setCurve(xdata, ydata)
+			self.nvidiaController.setCurve(xdata, ydata)
+			sendMessage('Successfully applied curve to fan settings!')
 		else:
 			xdata, ydata = self.dataController.getData()
 			xydata = [xdata, ydata]
@@ -147,11 +143,13 @@ class Chart(object):
 			config.append(res)
 		savedConfig = np.array(config)
 		np.savetxt("config.csv", savedConfig.astype(int) , delimiter=",", fmt='%i')
-		root = tk.Tk()
-		root.withdraw()
-		tkMessageBox.showinfo('Message', 'Successfully saved configuration!')
-		root.destroy()
+		sendMessage('Successfully saved curve config!')
 
+def sendMessage(message):
+	root = tk.Tk()
+	root.withdraw()
+	tkMessageBox.showinfo('Message', message)
+	root.destroy()
 
 def updateLabelStats(i):
 	current_temp = nvfanspeed.NvidiaFanController().getTemp()

@@ -127,7 +127,7 @@ class NvidiaFanController(StoppableThread):
 			current_temp = self.getTemp()
 			new_fan_speed = self.curve.evaluate(current_temp)
 			# os.system("clear")
-			print("CurrTemp: {0} FanSpeed: {1}".format(current_temp,new_fan_speed))
+			# print("CurrTemp: {0} FanSpeed: {1}".format(current_temp,new_fan_speed))
 			self.setFanSpeed(new_fan_speed)
 
 			time.sleep(1.0)
@@ -145,11 +145,9 @@ class NvidiaFanController(StoppableThread):
 		process = Popen("nvidia-settings -a [gpu:0]/GPUFanControlState=0", shell=True, stdin=PIPE, stdout=PIPE)
 
 	def getTemp(self):
-		process = Popen("nvidia-settings -q gpucoretemp", shell=True, stdin=PIPE, stdout=PIPE)
-		line_array = process.stdout.readlines()
-		tmp_line = line_array[1]
-		#grab number from end of line
-		return int(tmp_line[-4:-2])
+		process = Popen("nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader", shell=True, stdin=PIPE, stdout=PIPE)
+		new_temp = process.stdout.readlines()
+		return int(new_temp[0])
 
 	def getFanSpeed(self):
 		return new_fan_speed
@@ -174,7 +172,7 @@ class NvidiaFanController(StoppableThread):
 
 	def setCurve(self, *args, **kwargs):
 		self.curve_lock.acquire()
-		print "Fan Speed Curve updated"
+		# print "Fan Speed Curve updated"
 
 		if len(args) == 1:
 			self.curve.setCurve(args[0])

@@ -23,10 +23,10 @@ HOW TO INSTALL
 * Install matplotlib  
   `sudo apt-get install python-matplotlib`
 * Add the following line in section "Device" of /etc/X11/xorg.conf  
-  `Option         "Coolbits" "28"`
+  `Option "Coolbits" "28"`
   or
   `sudo nvidia-xconfig --enable-all-gpus && nvidia-xconfig --cool-bits=28`
 
 HOW TO START  
 Open a terminal in the folder containing both nvda-contrl.py and nvfanspeed.py, then execute:  
-`python nvd-contrl.py`
+`python nvd-fcontrl.py`
