@@ -1,6 +1,7 @@
 # nvda-contrl
-Python script for dynamic fan speed control for Nvidia Cards
 ==========================
+
+Python script for dynamic fan speed control for Nvidia Cards
 
 Based on the work of Luke Frisken and Mister Pup:  
 https://code.google.com/p/nvidia-fanspeed/
