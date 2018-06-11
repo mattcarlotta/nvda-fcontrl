@@ -1,5 +1,5 @@
 # nvda-fcontrl
-python script for that creates a modifiable 2D curve of [temp, speed] points that are used to control the fan speed within a Linux envirnoment.
+a python script that creates a modifiable 2D curve of [temp, speed] points that are used to control the fan speed within a Linux envirnoment.
 
 ## Quickstart Linux
 
@@ -18,9 +18,9 @@ python script for that creates a modifiable 2D curve of [temp, speed] points tha
 ⚠️ Only works with Nvidia proprietary drivers  
 ⚠️ No SLI support (only single GPU configuration)  
 ⚠️ It currently must be used with an open terminal  
-⚠️ On 349.12 and 349.16 versions there is a regression that makes it impossibile to control fan speed
+⚠️ Versions 349.12 and 349.16 are not supported due to a regression in the drivers
 
-Dependcies:  
+Dependencies:  
 * python  
 * matplotlib  
 * Tkinter
