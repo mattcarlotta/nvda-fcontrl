@@ -12,7 +12,7 @@ a python script that creates a modifiable 2D curve of [temp, speed] points that 
 * Allow the Nvidia card's fan to be controlled:  
   `sudo nvidia-xconfig --enable-all-gpus && nvidia-xconfig --cool-bits=28`
 * Open a terminal in the folder containing nvda-fcontrl.py, then execute:  
-  `python nvd-fcontrl.py`
+  `python nvda-fcontrl.py`
 
 ## Notes
 ⚠️ Only works with Nvidia proprietary drivers  
