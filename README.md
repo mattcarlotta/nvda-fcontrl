@@ -3,10 +3,10 @@
 Python script for dynamic fan speed control for Nvidia Cards
 
 Based on the work of Luke Frisken and Mister Pup:  
-https://code.google.com/p/nvidia-fanspeed/
-https://github.com/MisterPup/Nvidia-Dynamic-Fan-Control
+* https://code.google.com/p/nvidia-fanspeed/
+* https://github.com/MisterPup/Nvidia-Dynamic-Fan-Control
 
-A modifiable 2D curve of [temp, speed] points that is used to control the fan (depending on the temperature of the card)
+A modifiable 2D curve of [temp, speed] points that are used to control the fan speed (depending on the temperature of the card)
 
 ⚠️ Works only with proprietary drivers  
 ⚠️ No SLI support (only single GPU configuration)  
