@@ -1,5 +1,5 @@
 # nvda-fcontrl
-a python script that creates a modifiable 2D curve of [temp, speed] points that are used to control the fan speed within a Linux envirnoment.
+a gui python script that creates a modifiable 2D curve of [temp, speed] points that are used to control the fan speed of a Nvidia GPU within a Linux environment.
 
 ## Quickstart Linux
 
