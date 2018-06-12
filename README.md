@@ -10,9 +10,22 @@ a python script that creates a modifiable 2D curve of [temp, speed] points that 
 * Install Tkinter:  
   `sudo apt-get install python-tk`
 * Allow the Nvidia card's fan to be controlled:  
-  `sudo nvidia-xconfig --enable-all-gpus && nvidia-xconfig --cool-bits=28`
-* Open a terminal in the folder containing nvda-fcontrl.py, then execute:  
-  `python nvda-fcontrl.py`
+  `sudo nvidia-xconfig --enable-all-gpus`
+  `nvidia-xconfig --cool-bits=28`
+* Reboot your computer for the GPU settings to take effect:  
+  `sudo reboot`
+* Open a terminal in the folder containing nvdafcontrl.py, then execute:  
+  `python nvdafcontrl.py`
+
+## Button Actions
+
+* Apply - This temporarily applies the curve to the GPU fan
+* Save - This saves a `config.csv` within the app directory (if missing, loads a default curve)  
+
+## Live Updates
+
+* Temperature - Current GPU temperature is displayed in parentheses alongisde the label
+* Fan Speed - Current GPU fan speed is displayed in parentheses alongisde the label
 
 ## Notes
 ⚠️ Only works with Nvidia proprietary drivers  

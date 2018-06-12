@@ -28,27 +28,27 @@ import numpy as np
 import pygtk
 pygtk.require('2.0')
 import gtk
-import Tkinter as tk
-import tkMessageBox
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import matplotlib.animation as animation
 from datacontroller import *
 from draghandler import *
+from messagecontroller import displayDialogBox
 import math
 import signal
 import time
 import nvfanspeed
-import pynotify
 from os import path
 import csv
 
-x_values = []
-y_values = []
+x_values = [0,  10, 20, 30, 40, 50, 60, 65, 70, 80, 90, 100] # default values
+y_values = [30, 35, 40, 45, 55, 60, 65, 70, 75, 85, 95, 100] # default values
 
 fig = plt.figure(num="Nvidia Fan Speed Controller") #create a figure (one figure per window)
 axes = fig.add_subplot(111) #add a subplot to the figure. axes is of type Axes which contains most of the figure elements
 axes.set_title("Fan Speed Curve") # title for the chart
+update_stats = True
+
 
 class Chart(object):
 	def __init__(self, plt):
@@ -90,6 +90,7 @@ class Chart(object):
 		self.dataController = DataController(x_values, y_values)
 
 		#validate points from file!
+		self.pauseNvidiaController = nvfanspeed.pause
 		self.nvidiaController = nvfanspeed.NvidiaFanController(x_values, y_values)
 		self.nvidiaController.start()
 
@@ -99,7 +100,6 @@ class Chart(object):
 		signal.signal(signal.SIGTERM, self.exit_signal_handler)
 
 		self.fig.canvas.mpl_connect("close_event", self.on_close)
-		# self.updateLabelStats(axes)
 
 	def on_close(self, event):
 		self.nvidiaController.stop()
@@ -125,15 +125,19 @@ class Chart(object):
 	def applyData(self, event):
 		xdata = self.line.get_xdata()
 		ydata = self.line.get_ydata()
-		ret = self.dataController.setData(xdata, ydata)
 
-		if ret:
-			self.nvidiaController.setCurve(xdata, ydata)
-			sendMessage('Successfully applied curve to fan settings!')
-		else:
-			xdata, ydata = self.dataController.getData()
-			xydata = [xdata, ydata]
-			self.line.set_data(xydata)
+		setUpdateStats(False)
+		self.pauseNvidiaController(True)
+		self.nvidiaController.setCurve(xdata, ydata)
+		self.pauseNvidiaController(False)
+		setUpdateStats(True)	
+		displayDialogBox('Successfully applied curve to fan settings!')
+		
+		# else:
+		# 	print "Still gathering data"
+		# 	xdata, ydata = self.dataController.getData()
+		# 	xydata = [xdata, ydata]
+		# 	self.line.set_data(xydata)
 
 	def saveToFile(self, event):
 		config = []
@@ -143,37 +147,43 @@ class Chart(object):
 			config.append(res)
 		savedConfig = np.array(config)
 		np.savetxt("config.csv", savedConfig.astype(int) , delimiter=",", fmt='%i')
-		sendMessage('Successfully saved curve config!')
+		displayDialogBox('Successfully saved curve config!')
 
-def sendMessage(message):
-	root = tk.Tk()
-	root.withdraw()
-	tkMessageBox.showinfo('Message', message)
-	root.destroy()
+def setUpdateStats(bool):
+	global update_stats
+	update_stats = bool
 
 def updateLabelStats(i):
-	current_temp = nvfanspeed.NvidiaFanController().getTemp()
-	axes.set_xlabel("Temperature "+ "(" + str(current_temp) +"°C)")
-	current_fan_speed = str(nvfanspeed.NvidiaFanController().getFanSpeed())
-	axes.set_ylabel("Fan Speed " + "(" + str(current_fan_speed) + "%)")
+	if (update_stats):
+		current_temp = nvfanspeed.NvidiaFanController().getTemp()
+		axes.set_xlabel("Temperature "+ "(" + str(current_temp) +"°C)")
+		current_fan_speed = str(nvfanspeed.NvidiaFanController().getFanSpeed())
+		axes.set_ylabel("Fan Speed " + "(" + str(current_fan_speed) + "%)")
 
 def initChartValues():
 	global x_values
 	global y_values
 
+	confg_x = []
+	confg_y = []
+
 	if path.exists("config.csv"):
 		with open('config.csv', 'r') as csvfile:
 			config = csv.reader(csvfile, delimiter=',')
 			for row in config:
-				x_values.append(int(row[0]))
-				y_values.append(int(row[1]))
+				confg_x.append(int(row[0]))
+				confg_y.append(int(row[1]))
 
-	x_values = x_values or [0,  10, 20, 30, 40, 50, 60, 65, 70, 80, 90, 100] #temp
-	y_values = y_values or [30, 35, 40, 45, 55, 60, 65, 70, 75, 85, 95, 100] #speed
+		x_values = confg_x #temp
+		y_values = confg_y #speed
 
-if __name__ == "__main__":
+def main():
 	ani = animation.FuncAnimation(fig, updateLabelStats, interval=1000)
 	initChartValues()
 	chart = Chart(plt)
 	chart.show()
 	plt.show()
+
+if __name__ == "__main__":
+	main()
+

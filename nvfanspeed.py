@@ -29,9 +29,11 @@ import time
 import os
 import signal
 import threading
+from messagecontroller import displayDialogBox
 
 current_temp = 0
 new_fan_speed = 0
+pause_loop = False
 
 class Curve():
 
@@ -80,13 +82,13 @@ class StoppableThread(threading.Thread):
 
     def __init__(self):
         super(StoppableThread, self).__init__()
-        self._stop = threading.Event()
+        self.stop_thread = threading.Event()
 
     def stop(self):
-        self._stop.set()
+        self.stop_thread.set()
 
     def stopped(self):
-        return self._stop.isSet()
+        return self.stop_thread.isSet()
 
 class NvidiaFanController(StoppableThread):
 
@@ -108,7 +110,7 @@ class NvidiaFanController(StoppableThread):
 			self.curve = Curve(args[0], args[1])
 
 	def exit_signal_handler(self, signal, frame):
-		self.stop()
+		self.stop_thread()
 
 	def stop(self):
 		super(NvidiaFanController, self).stop() #StoppableThread.stop()
@@ -118,30 +120,29 @@ class NvidiaFanController(StoppableThread):
 		global current_temp
 
 		while(not self.stopped()):
-			self.curve_lock.acquire()
+			if (pause_loop): 
+				continue # allow loop to continue running but not execute any functions
+			else:
+				self.curve_lock.acquire() # get Curve
 
-			#print "Custom Fan Speed pid ", os.getpid()
-			#for index in range(0, len(self.curve.cpa)):
-			#	print self.curve.cpa[index]
+				current_temp = self.getTemp()
+				new_fan_speed = self.curve.evaluate(current_temp)
+				# os.system("clear")
+				# print("CurrTemp: {0} FanSpeed: {1}".format(current_temp,new_fan_speed))
+				self.setFanSpeed(new_fan_speed)
 
-			current_temp = self.getTemp()
-			new_fan_speed = self.curve.evaluate(current_temp)
-			# os.system("clear")
-			# print("CurrTemp: {0} FanSpeed: {1}".format(current_temp,new_fan_speed))
-			self.setFanSpeed(new_fan_speed)
+				time.sleep(1.0)
 
-			time.sleep(1.0)
-
-			self.curve_lock.release()
+				self.curve_lock.release()
 
 		self.resetFan()
 
-		print "Exit"
+		# print "Exit"
 		#finished and ready to exit
 		return
 
 	def resetFan(self):
-		print "Reset to Auto Fan"
+		# print "Reset to Auto Fan"
 		process = Popen("nvidia-settings -a [gpu:0]/GPUFanControlState=0", shell=True, stdin=PIPE, stdout=PIPE)
 
 	def getTemp(self):
@@ -158,7 +159,8 @@ class NvidiaFanController(StoppableThread):
 		if drv_ver >= NvidiaFanController.DRIVER_VERSION_CHANGE:
 			process = Popen("nvidia-settings -a [gpu:0]/GPUFanControlState=1 -a [fan:0]/GPUTargetFanSpeed={0}".format(speed), shell=True, stdin=PIPE, stdout=PIPE)
 		elif drv_ver in NvidiaFanController.DRIVER_VERSIONS_ERROR:
-			print "Cannot control fan speed in version {0} of the driver".format(drv_ver)
+			displayDialogBox("Cannot control fan speed in driver version {0}. Please update your driver to use this app.".format(drv_ver))
+			self.stop()
 		else:
 			process = Popen("nvidia-settings -a [gpu:0]/GPUFanControlState=1 -a [fan:0]/GPUCurrentFanSpeed={0}".format(speed), shell=True, stdin=PIPE, stdout=PIPE)
 
@@ -182,6 +184,10 @@ class NvidiaFanController(StoppableThread):
 
 		self.curve_lock.release()
 
+
+def pause(bool):
+	global pause_loop
+	pause_loop = bool
 
 if __name__ == "__main__":
 	print "Please launch nvda-contrl.py"
