@@ -21,7 +21,7 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
 ## Button Actions
 
 * Apply - Applies the curve to the GPU fan for the duration of the session
-* Reset - Sets the curve to default values (can be from config.csv values)
+* Reset - Sets the curve to default values (can be from `config.csv` values)
 * Save -  Saves a `config.csv` within the app directory (if missing, loads a default curve)  
 
 ## Live Updates
