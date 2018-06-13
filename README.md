@@ -44,7 +44,8 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
 
 
 
-Dependencies:  
+## Dependencies:
+
 * python  
 * matplotlib  
 * Tkinter
