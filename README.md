@@ -15,7 +15,7 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
   `sudo nvidia-xconfig --enable-all-gpus`, `nvidia-xconfig --cool-bits=28`
 * Reboot your computer for the GPU settings to take effect:  
   `sudo reboot`
-* Open a terminal in the folder containing nvdafcontrl.py, then execute:  
+* Open a terminal in the folder containing nvfc.py, then execute:  
   `python nvfc.py`
 
 ## Button Actions
