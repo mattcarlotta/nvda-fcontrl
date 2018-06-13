@@ -31,11 +31,17 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
 
 ## Notes
 ⚠️ Only works with Nvidia proprietary drivers
+
 ⚠️ Only works with nvidia proprietary drivers
+
 ⚠️ Versions 349.12 and 349.16 are not supported due to a regression in the drivers
+
 ⚠️ No SLI support (only single GPU configuration)
+
 ⚠️ It currently must be used with an open terminal
+
 ⚠️ Close the app resets the GPU fan speed to auto (controlled by driver)
+
 
 
 Dependencies:  
