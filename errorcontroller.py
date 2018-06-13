@@ -1,10 +1,10 @@
 import Tkinter as tk
 import tkMessageBox
 
-def displayDialogBox(message):
+def displayErrorBox(message):
 	root = tk.Tk()
 	root.withdraw()
-	tkMessageBox.showinfo('Message', message)
+	tkMessageBox.showerror('Error', message)
 	root.destroy()
 
 	
