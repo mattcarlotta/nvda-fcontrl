@@ -20,9 +20,9 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
 
 ## Button Actions
 
-* Apply - Applies the curve to the GPU fan for the duration of the session
-* Reset - Sets the curve to default values (can be from config.csv values)
-* Save -  Saves a `config.csv` within the app directory (if missing, loads a default curve)  
+* Apply -- Sets the curve to the GPU fan for the duration of the session
+* Reset -- Sets the curve to default values (can be from `config.csv` values)
+* Save --  Saves a `config.csv` within the app directory (if missing, loads a default curve)  
 
 ## Live Updates
 
@@ -33,7 +33,7 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
 ⚠️ Only works with Nvidia proprietary drivers
 ⚠️ Versions 349.12 and 349.16 are not supported due to a regression in the drivers  
 ⚠️ No SLI support (only single GPU configuration)  
-⚠️ It currently must be used with an open terminal  
+⚠️ It currently must be used with an open terminal
 ⚠️ Closing the app resets the GPU fan speed to auto (controlled by driver)
 
 Dependencies:  
