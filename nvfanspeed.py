@@ -27,13 +27,13 @@ along with this program.  If not, see http://www.gnu.org/licenses.
 from subprocess import *
 import time
 import os
-import signal
 import threading
 from messagecontroller import displayDialogBox
 
 current_temp = 0
 new_fan_speed = 0
-pause_loop = False
+old_fan_speed = 0
+updated_curve = False
 
 class Curve():
 
@@ -98,10 +98,6 @@ class NvidiaFanController(StoppableThread):
 	"""Room here for arguments to implement multigpu fan control"""
 	def __init__(self, *args, **kwargs):
 		super(NvidiaFanController, self).__init__()
-		signal.signal(signal.SIGINT, self.exit_signal_handler) #CTRL-C
-		signal.signal(signal.SIGQUIT, self.exit_signal_handler) #CTRL-\
-		signal.signal(signal.SIGHUP, self.exit_signal_handler) #terminal closed
-		signal.signal(signal.SIGTERM, self.exit_signal_handler)
 		self.curve_lock = threading.Lock()
 
 		if len(args) == 1: #[[temp0, speed0], [temp1, speed1], [temp2, speed2]]
@@ -109,37 +105,40 @@ class NvidiaFanController(StoppableThread):
 		if len(args) == 2: #[[temp0, temp1, temp2], [speed0, speed1, speed2]]
 			self.curve = Curve(args[0], args[1])
 
-	def exit_signal_handler(self, signal, frame):
-		self.stop_thread()
-
-	def stop(self):
-		super(NvidiaFanController, self).stop() #StoppableThread.stop()
-
 	def run(self):
-		global new_fan_speed
 		global current_temp
 
+		# if app is running, control GPU fan
 		while(not self.stopped()):
-			if (pause_loop): 
-				continue # allow loop to continue running but not execute any functions
+			if (updated_curve): 
+				continue # pause loop to update curve points
 			else:
-				self.curve_lock.acquire() # get Curve
-
-				current_temp = self.getTemp()
-				new_fan_speed = self.curve.evaluate(current_temp)
-				# os.system("clear")
-				# print("CurrTemp: {0} FanSpeed: {1}".format(current_temp,new_fan_speed))
-				self.setFanSpeed(new_fan_speed)
-
+				self.updateFan() # update fan if needed
 				time.sleep(1.0)
 
-				self.curve_lock.release()
-
+		# exit app and reset GPU to auto
 		self.resetFan()
-
-		# print "Exit"
-		#finished and ready to exit
 		return
+
+	def updateFan(self):
+		global new_fan_speed
+		global current_temp
+		global old_fan_speed
+		
+		self.curve_lock.acquire() # get Curve
+
+		current_temp = self.getTemp() # get current GPU temp
+		new_fan_speed = self.curve.evaluate(current_temp) # set temp based upon curve fspd point
+
+		""" 
+		Check if the fspd needs to be updated because of temp change or because of curve point update
+		No need to hammer the GPU with updates if nothing has changed
+		"""
+		if (old_fan_speed != new_fan_speed): 
+			self.setFanSpeed(new_fan_speed) # sets new fan speed according to curve points
+			old_fan_speed = new_fan_speed # updates an old fspd to compare against an incoming new fspd
+
+		self.curve_lock.release()
 
 	def resetFan(self):
 		# print "Reset to Auto Fan"
@@ -184,10 +183,9 @@ class NvidiaFanController(StoppableThread):
 
 		self.curve_lock.release()
 
-
-def pause(bool):
-	global pause_loop
-	pause_loop = bool
+def updatedCurve(bool):
+	global updated_curve
+	updated_curve = bool
 
 if __name__ == "__main__":
 	print "Please launch nvda-contrl.py"

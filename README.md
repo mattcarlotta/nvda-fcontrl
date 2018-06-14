@@ -9,8 +9,12 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
   `sudo apt-get install python`
 * Install matplotlib:  
   `sudo apt-get install python-matplotlib`
-* Install Tkinter:  
+* Install Tkinter:
   `sudo apt-get install python-tk`
+* Install pyGTK:
+  `sudo apt-get install python-gtk2-dev`
+* Install libcanberra-gtk:
+  `sudo apt-get install libcanberra-gtk-module`
 * Allow the Nvidia card's fan to be controlled:  
   `sudo nvidia-xconfig --enable-all-gpus`, `sudo nvidia-xconfig --cool-bits=28`
 * Reboot your computer for the GPU settings to take effect:  
@@ -47,6 +51,8 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
 * python  
 * matplotlib  
 * Tkinter
+* pyGTK
+* libcanberra-gtk
 
 Based on the work of Luke Frisken and Mister Pup:  
 * https://code.google.com/p/nvidia-fanspeed/

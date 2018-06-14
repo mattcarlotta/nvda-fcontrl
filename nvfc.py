@@ -46,8 +46,8 @@ import csv
 style.use(['seaborn-dark', 'seaborn-talk']) # current plot theme
 # print style.available
 
-x_values = [0,  10, 20, 30, 40, 50, 60, 65, 70, 80, 90, 100] # default values
-y_values = [30, 35, 40, 45, 55, 60, 65, 70, 75, 85, 95, 100] # default values
+x_values = []
+y_values = []
 
 fig = plt.figure(num="Nvidia Fan Controller", figsize=(12, 9)) #create a figure (one figure per window)
 fig.canvas.toolbar.pack_forget()
@@ -102,7 +102,7 @@ class Chart(object):
 		self.dataController = DataController(x_values, y_values)
 
 		#validate points from file!
-		self.pauseNvidiaController = nvfanspeed.pause
+		self.updatedCurve = nvfanspeed.updatedCurve
 		self.nvidiaController = nvfanspeed.NvidiaFanController(x_values, y_values)
 		self.nvidiaController.start()
 
@@ -144,20 +144,19 @@ class Chart(object):
 
 	def updateChart(self, xdata, ydata):
 		"""
-		There was an issue where updating the curve points can take anywhere from 3 to 10+ cycles due to the NvidiaFanController's 
-		run loop constantly updating the GPU fan speed. By pausing the run loop, updates to the curve occur consistently within 1 
-		cycle. As a precaution, updating the chart with GPU temp/fan speed stats have also been paused, although may not be necessary.
+		Due to how the NvidiaFanController run loop was structured to constantly update, there was an issue where updating the curve points could take anywhere from 3 to 10+ loop iterations
+		By pausing the loop, updates to the curve points occur consistently between 1-3 loop iterations
+		As a precaution, updating the chart with GPU temp/fan speed stats have also been paused, although may not be necessary.
 		"""
 		self.setUpdateStats(False) # temporarily stops live GPU updates
-		self.pauseNvidiaController(True) # pauses the nvfanspeed run loop
-		self.nvidiaController.setCurve(xdata, ydata) # updates chart with x and y data
-		self.pauseNvidiaController(False) # resumes nvfanspeed loop
+		self.updatedCurve(True) # pauses the nvfanspeed run loop
+		self.nvidiaController.setCurve(xdata, ydata) # updates curve with new x and y data
+		self.updatedCurve(False) # resumes nvfanspeed loop
 		self.setUpdateStats(True) # enables live GPU updates
 
 	def setUpdateStats(self, bool):
 		global update_stats
 		update_stats = bool
-
 
 	def applyData(self, event):
 		xdata = self.line.get_xdata() # grabs current curve y data
@@ -165,7 +164,7 @@ class Chart(object):
 		is_valid_curve = self.dataController.setData(xdata, ydata) # checks if curve is exponentially growing (returns bool)
 
 		if is_valid_curve:
-			self.updateChart(xdata, ydata) # updates nvfanspeed.NvidiaFanController()
+			self.updateChart(xdata, ydata) # updates nvfanspeed.NvidiaFanController() with new curve data
 			displayDialogBox('Successfully applied the current curve to the fan settings!')
 		else:
 			xdata, ydata = self.dataController.getData() # gets previous data
@@ -194,6 +193,9 @@ def updateLabelStats(i):
 def initChartValues():
 	global x_values
 	global y_values
+
+	x_values = [0,  10, 20, 30, 40, 50, 60, 65, 70, 80, 90, 100] # default values
+	y_values = [30, 35, 40, 45, 55, 60, 65, 70, 75, 85, 95, 100] # default values
 
 	cfg_x = []
 	cfg_y = []
