@@ -12,7 +12,7 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
 * Install Tkinter:  
   `sudo apt-get install python-tk`
 * Allow the Nvidia card's fan to be controlled:  
-  `sudo nvidia-xconfig --enable-all-gpus`, `nvidia-xconfig --cool-bits=28`
+  `sudo nvidia-xconfig --enable-all-gpus`, `sudo nvidia-xconfig --cool-bits=28`
 * Reboot your computer for the GPU settings to take effect:  
   `sudo reboot`
 * Open a terminal in the folder containing nvfc.py, then execute:  
