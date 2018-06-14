@@ -9,11 +9,11 @@ a python script with a GUI that creates a modifiable 2D curve of [temp, speed] p
   `sudo apt-get install python`
 * Install matplotlib:  
   `sudo apt-get install python-matplotlib`
-* Install Tkinter:
+* Install Tkinter:  
   `sudo apt-get install python-tk`
-* Install pyGTK:
+* Install pyGTK:  
   `sudo apt-get install python-gtk2-dev`
-* Install libcanberra-gtk:
+* Install libcanberra-gtk:  
   `sudo apt-get install libcanberra-gtk-module`
 * Allow the Nvidia card's fan to be controlled:  
   `sudo nvidia-xconfig --enable-all-gpus` and `sudo nvidia-xconfig --cool-bits=28`
