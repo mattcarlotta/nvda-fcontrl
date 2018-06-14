@@ -36,7 +36,6 @@ old_fan_speed = 0
 updated_curve = False
 
 class Curve():
-
 	def __init__(self, *args, **kwargs):
 		if len(args) == 1: #[[temp0, speed0], [temp1, speed1], [temp2, speed2]]
 			self.cpa = list(args[0])
@@ -105,6 +104,26 @@ class NvidiaFanController(StoppableThread):
 		if len(args) == 2: #[[temp0, temp1, temp2], [speed0, speed1, speed2]]
 			self.curve = Curve(args[0], args[1])
 
+	def getDriverVersion(self):
+		try:
+			drv_ver = check_output("nvidia-smi | sed -n -e 's/^.*Version: //p' | head -c 6", shell=True)
+			return drv_ver
+		except Exception:
+			print "Exception in parsing Nvidia Driver Version. We'll use old attribute 'GPUCurrentFanSpeed'"
+			return -1
+
+	def getFanSpeed(self):
+		return new_fan_speed
+
+	def getTemp(self):
+		process = Popen("nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader", shell=True, stdin=PIPE, stdout=PIPE)
+		new_temp = process.stdout.readlines()
+		return int(new_temp[0])
+
+	def resetFan(self):
+		# print "Reset to Auto Fan"
+		process = Popen("nvidia-settings -a [gpu:0]/GPUFanControlState=0", shell=True, stdin=PIPE, stdout=PIPE)
+
 	def run(self):
 		global current_temp
 
@@ -119,6 +138,29 @@ class NvidiaFanController(StoppableThread):
 		# exit app and reset GPU to auto
 		self.resetFan()
 		return
+
+	def setCurve(self, *args, **kwargs):
+		self.curve_lock.acquire()
+		# print "Fan Speed Curve updated"
+
+		if len(args) == 1:
+			self.curve.setCurve(args[0])
+
+		if len(args) == 2:
+			self.curve.setCurve(args[0], args[1])
+
+		self.curve_lock.release()
+
+	def setFanSpeed(self, speed):
+		drv_ver = self.getDriverVersion()
+
+		if drv_ver >= NvidiaFanController.DRIVER_VERSION_CHANGE:
+			process = Popen("nvidia-settings -a [gpu:0]/GPUFanControlState=1 -a [fan:0]/GPUTargetFanSpeed={0}".format(speed), shell=True, stdin=PIPE, stdout=PIPE)
+		elif drv_ver in NvidiaFanController.DRIVER_VERSIONS_ERROR:
+			displayDialogBox("Cannot control fan speed in driver version {0}. Please update your driver to use this app.".format(drv_ver))
+			self.stop()
+		else:
+			process = Popen("nvidia-settings -a [gpu:0]/GPUFanControlState=1 -a [fan:0]/GPUCurrentFanSpeed={0}".format(speed), shell=True, stdin=PIPE, stdout=PIPE)
 
 	def updateFan(self):
 		global new_fan_speed
@@ -140,48 +182,6 @@ class NvidiaFanController(StoppableThread):
 
 		self.curve_lock.release()
 
-	def resetFan(self):
-		# print "Reset to Auto Fan"
-		process = Popen("nvidia-settings -a [gpu:0]/GPUFanControlState=0", shell=True, stdin=PIPE, stdout=PIPE)
-
-	def getTemp(self):
-		process = Popen("nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader", shell=True, stdin=PIPE, stdout=PIPE)
-		new_temp = process.stdout.readlines()
-		return int(new_temp[0])
-
-	def getFanSpeed(self):
-		return new_fan_speed
-
-	def setFanSpeed(self, speed):
-		drv_ver = self.getDriverVersion()
-
-		if drv_ver >= NvidiaFanController.DRIVER_VERSION_CHANGE:
-			process = Popen("nvidia-settings -a [gpu:0]/GPUFanControlState=1 -a [fan:0]/GPUTargetFanSpeed={0}".format(speed), shell=True, stdin=PIPE, stdout=PIPE)
-		elif drv_ver in NvidiaFanController.DRIVER_VERSIONS_ERROR:
-			displayDialogBox("Cannot control fan speed in driver version {0}. Please update your driver to use this app.".format(drv_ver))
-			self.stop()
-		else:
-			process = Popen("nvidia-settings -a [gpu:0]/GPUFanControlState=1 -a [fan:0]/GPUCurrentFanSpeed={0}".format(speed), shell=True, stdin=PIPE, stdout=PIPE)
-
-	def getDriverVersion(self):
-		try:
-			drv_ver = check_output("nvidia-smi | sed -n -e 's/^.*Version: //p' | head -c 6", shell=True)
-			return drv_ver
-		except Exception:
-			print "Exception in parsing Nvidia Driver Version. We'll use old attribute 'GPUCurrentFanSpeed'"
-			return -1
-
-	def setCurve(self, *args, **kwargs):
-		self.curve_lock.acquire()
-		# print "Fan Speed Curve updated"
-
-		if len(args) == 1:
-			self.curve.setCurve(args[0])
-
-		if len(args) == 2:
-			self.curve.setCurve(args[0], args[1])
-
-		self.curve_lock.release()
 
 def updatedCurve(bool):
 	global updated_curve

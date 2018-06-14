@@ -1,5 +1,5 @@
 # nvda-fcontrl
-a gui python script that creates a modifiable 2D curve of [temp, speed] points that are used to control the fan speed of a Nvidia GPU within a Linux environment.
+a python script with a GUI that creates a modifiable 2D curve of [temp, speed] points that are used to control the fan speed of a Nvidia GPU within a Linux environment.
 
 ![nvfc.png](https://code.mattcarlotta.io/root/nvda-fcontrl/raw/master/nvfc.png)
 
@@ -16,7 +16,7 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
 * Install libcanberra-gtk:
   `sudo apt-get install libcanberra-gtk-module`
 * Allow the Nvidia card's fan to be controlled:  
-  `sudo nvidia-xconfig --enable-all-gpus`, `sudo nvidia-xconfig --cool-bits=28`
+  `sudo nvidia-xconfig --enable-all-gpus` and `sudo nvidia-xconfig --cool-bits=28`
 * Reboot your computer for the GPU settings to take effect:  
   `sudo reboot`
 * Open a terminal in the folder containing nvfc.py, then execute:  
@@ -25,7 +25,7 @@ a gui python script that creates a modifiable 2D curve of [temp, speed] points t
 ## Button Actions
 
 * Apply - Applies the curve to the GPU fan for the duration of the session
-* Reset - Sets the curve to default values (can be from `config.csv` values)
+* Reset - Sets the curve to default values (can be values from `config.csv`)
 * Save -  Saves a `config.csv` within the app directory (if missing, loads a default curve)  
 
 ## Live Updates
