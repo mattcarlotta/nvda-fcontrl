@@ -107,7 +107,7 @@ class NvidiaFanController(StoppableThread):
 	def getDriverVersion(self):
 		try:
 			drv_ver = check_output("nvidia-smi | sed -n -e 's/^.*Version: //p' | head -c 6", shell=True)
-			return drv_ver
+			return float(drv_ver)
 		except Exception:
 			print "Exception in parsing Nvidia Driver Version. We'll use old attribute 'GPUCurrentFanSpeed'"
 			return -1
