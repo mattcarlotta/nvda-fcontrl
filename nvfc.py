@@ -186,7 +186,7 @@ class Chart(object):
 def updateLabelStats(i):
 	if (update_stats):
 		current_temp = nvfanspeed.NvidiaFanController().getTemp() # grabs current temp from NvidiaFanController
-		axes.set_xlabel("Temperature "+ "(" + str(current_temp) +"°C)") # updates chart x-axis label
+		axes.set_xlabel("Temperature "+ "(" + str(current_temp) +"C)") # updates chart x-axis label
 		current_fan_speed = str(nvfanspeed.NvidiaFanController().getFanSpeed()) # grabs current fspd from NvidiaFanController
 		axes.set_ylabel("Fan Speed " + "(" + str(current_fan_speed) + "%)") # updates chart y-axis label
 
